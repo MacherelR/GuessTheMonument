@@ -1,0 +1,131 @@
+import { GameController } from './game-controller.js';
+import { GuessMapController, ResultMapController } from './map-controller.js';
+import { fetchLeaderboard } from './data-store.js';
+import * as ui from './ui-controller.js';
+
+const game = new GameController();
+let guessMap = null;
+let resultMap = null;
+let pendingGuess = null;
+
+ui.onStartSubmit(handleStart);
+ui.onLockGuess(handleLockGuess);
+ui.onNextRound(handleNextRound);
+ui.onPlayAgain(handlePlayAgain);
+ui.onViewLeaderboard(() => {
+  ui.openLeaderboard();
+  loadLeaderboard();
+});
+ui.onLeaderboardOpen(() => {
+  ui.openLeaderboard();
+  loadLeaderboard();
+});
+ui.onLeaderboardClose(ui.closeLeaderboard);
+
+ui.showScreen('start');
+
+async function handleStart() {
+  const { playerName, roundCount } = ui.getStartFormValues();
+
+  if (!playerName || playerName.trim().length === 0) {
+    ui.setStartError('Please enter your name to start the game.');
+    return;
+  }
+
+  ui.setStartError('');
+
+  try {
+    await game.start(playerName, roundCount);
+    startQuestionRound();
+  } catch (err) {
+    ui.setStartError(err.message || 'Unable to start a new game. Please try again.');
+  }
+}
+
+function startQuestionRound() {
+  ui.showScreen('question');
+  pendingGuess = null;
+
+  if (!guessMap) {
+    guessMap = new GuessMapController('map');
+  } else {
+    guessMap.reset();
+  }
+  guessMap.onGuessChange = (lat, lng) => {
+    pendingGuess = { lat, lng };
+    ui.setLockEnabled(true);
+  };
+  guessMap.invalidateSize();
+
+  ui.renderQuestion(game.currentMonument, game.currentIndex, game.roundCount, game.totalScore);
+}
+
+async function handleLockGuess() {
+  if (!pendingGuess) {
+    ui.showToast('Place a marker on the map before locking your guess.');
+    return;
+  }
+
+  ui.setLockEnabled(false);
+
+  try {
+    const result = await game.submitCurrentGuess(pendingGuess.lat, pendingGuess.lng);
+    showRoundResult(result);
+  } catch (err) {
+    ui.showToast(err.message || 'Unable to submit your guess. Please try again.');
+    ui.setLockEnabled(true);
+  }
+}
+
+function showRoundResult(result) {
+  ui.showScreen('result');
+
+  if (!resultMap) {
+    resultMap = new ResultMapController('result-map');
+  }
+  resultMap.invalidateSize();
+  resultMap.reveal(
+    { lat: result.guessLat, lng: result.guessLng },
+    { lat: result.actualLat, lng: result.actualLng }
+  );
+
+  ui.renderResult(
+    game.currentMonument,
+    game.currentIndex,
+    game.roundCount,
+    game.totalScore,
+    result.distanceKm,
+    result.score
+  );
+}
+
+async function handleNextRound() {
+  if (game.isLastRound) {
+    try {
+      const summary = await game.finish();
+      ui.renderFinal(summary.playerName, summary.totalScore, summary.breakdown);
+      ui.showScreen('final');
+    } catch (err) {
+      ui.showToast(err.message || 'Unable to save your final score. Please try again.');
+    }
+    return;
+  }
+
+  game.advance();
+  startQuestionRound();
+}
+
+function handlePlayAgain() {
+  ui.resetStartForm();
+  ui.showScreen('start');
+}
+
+async function loadLeaderboard() {
+  try {
+    const data = await fetchLeaderboard();
+    ui.renderLeaderboard(data.leaderboard);
+  } catch (err) {
+    ui.renderLeaderboard([]);
+    ui.showToast('Unable to load the leaderboard right now.');
+  }
+}
