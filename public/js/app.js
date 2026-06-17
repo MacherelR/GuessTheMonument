@@ -7,28 +7,38 @@ const game = new GameController();
 let guessMap = null;
 let resultMap = null;
 let pendingGuess = null;
+let previousScreen = 'start';
 
 ui.onStartSubmit(handleStart);
 ui.onLockGuess(handleLockGuess);
 ui.onNextRound(handleNextRound);
 ui.onPlayAgain(handlePlayAgain);
-ui.onViewLeaderboard(() => {
-  ui.openLeaderboard();
-  loadLeaderboard();
-});
-ui.onLeaderboardOpen(() => {
-  ui.openLeaderboard();
-  loadLeaderboard();
-});
-ui.onLeaderboardClose(ui.closeLeaderboard);
+ui.onViewLeaderboard(() => openLeaderboard('final'));
+ui.onLeaderboardOpen(() => openLeaderboard(currentScreen()));
+ui.onLeaderboardBack(() => ui.showScreen(previousScreen));
 
 ui.showScreen('start');
+
+function currentScreen() {
+  const names = ['start', 'question', 'result', 'final', 'leaderboard'];
+  for (const name of names) {
+    const el = document.getElementById(`screen-${name}`);
+    if (el && !el.classList.contains('hidden')) return name;
+  }
+  return 'start';
+}
+
+function openLeaderboard(from) {
+  previousScreen = from;
+  ui.showScreen('leaderboard');
+  loadLeaderboard();
+}
 
 async function handleStart() {
   const { playerName, roundCount } = ui.getStartFormValues();
 
   if (!playerName || playerName.trim().length === 0) {
-    ui.setStartError('Please enter your name to start the game.');
+    ui.setStartError('Saisis ton prénom pour commencer.');
     return;
   }
 
@@ -38,7 +48,7 @@ async function handleStart() {
     await game.start(playerName, roundCount);
     startQuestionRound();
   } catch (err) {
-    ui.setStartError(err.message || 'Unable to start a new game. Please try again.');
+    ui.setStartError(err.message || 'Impossible de démarrer la partie. Réessaie.');
   }
 }
 
@@ -62,7 +72,7 @@ function startQuestionRound() {
 
 async function handleLockGuess() {
   if (!pendingGuess) {
-    ui.showToast('Place a marker on the map before locking your guess.');
+    ui.showToast('Place une épingle sur la carte avant de valider.');
     return;
   }
 
@@ -72,7 +82,7 @@ async function handleLockGuess() {
     const result = await game.submitCurrentGuess(pendingGuess.lat, pendingGuess.lng);
     showRoundResult(result);
   } catch (err) {
-    ui.showToast(err.message || 'Unable to submit your guess. Please try again.');
+    ui.showToast(err.message || 'Impossible de soumettre ta réponse. Réessaie.');
     ui.setLockEnabled(true);
   }
 }
@@ -106,7 +116,7 @@ async function handleNextRound() {
       ui.renderFinal(summary.playerName, summary.totalScore, summary.breakdown);
       ui.showScreen('final');
     } catch (err) {
-      ui.showToast(err.message || 'Unable to save your final score. Please try again.');
+      ui.showToast(err.message || 'Impossible de sauvegarder ton score. Réessaie.');
     }
     return;
   }
@@ -126,6 +136,6 @@ async function loadLeaderboard() {
     ui.renderLeaderboard(data.leaderboard);
   } catch (err) {
     ui.renderLeaderboard([]);
-    ui.showToast('Unable to load the leaderboard right now.');
+    ui.showToast('Impossible de charger le classement.');
   }
 }

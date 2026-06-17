@@ -8,6 +8,7 @@ from geo import haversine_distance_km, score_from_distance
 from monuments import get_active_monuments, get_monument_by_id
 
 PUBLIC_DIR = os.path.join(os.path.dirname(__file__), "..", "public")
+IMAGES_DIR = os.path.join(os.path.dirname(__file__), "..", "images")
 
 MIN_ROUNDS = 5
 MAX_ROUNDS = 10
@@ -309,6 +310,11 @@ def monuments_preview():
 
     selected = random.sample(get_active_monuments(), count)
     return jsonify({"monuments": [public_monument(m, i) for i, m in enumerate(selected)]})
+
+
+@app.route("/images/<path:filename>")
+def serve_image(filename):
+    return send_from_directory(IMAGES_DIR, filename)
 
 
 @app.route("/")
