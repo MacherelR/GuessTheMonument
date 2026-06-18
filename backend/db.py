@@ -1,7 +1,13 @@
 import os
 import sqlite3
+import sys
 
-DATA_DIR = os.path.join(os.path.dirname(__file__), "data")
+if getattr(sys, "frozen", False):
+    _BASE = os.path.dirname(sys.executable)
+else:
+    _BASE = os.path.dirname(__file__)
+
+DATA_DIR = os.path.join(_BASE, "data")
 DB_PATH = os.path.join(DATA_DIR, "game.db")
 
 SCHEMA = """

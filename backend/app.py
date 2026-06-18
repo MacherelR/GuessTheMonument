@@ -1,5 +1,6 @@
 import os
 import random
+import sys
 
 from flask import Flask, jsonify, request, send_from_directory
 
@@ -7,12 +8,17 @@ from db import get_connection, init_db
 from geo import haversine_distance_km, score_from_distance
 from monuments import get_active_monuments, get_monument_by_id
 
-PUBLIC_DIR = os.path.join(os.path.dirname(__file__), "..", "public")
-IMAGES_DIR = os.path.join(os.path.dirname(__file__), "..", "images")
+if getattr(sys, "frozen", False):
+    _BASE = sys._MEIPASS
+else:
+    _BASE = os.path.join(os.path.dirname(__file__), "..")
+
+PUBLIC_DIR = os.path.join(_BASE, "public")
+IMAGES_DIR = os.path.join(_BASE, "images")
 
 MIN_ROUNDS = 5
-MAX_ROUNDS = 10
-DEFAULT_ROUNDS = 7
+MAX_ROUNDS = 20
+DEFAULT_ROUNDS = 15
 
 app = Flask(__name__, static_folder=PUBLIC_DIR, static_url_path="")
 

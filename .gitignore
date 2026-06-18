@@ -4,3 +4,5 @@ __pycache__/
 backend/data/
 *.log
 .DS_Store
+.claude
+dist
