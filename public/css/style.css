@@ -185,7 +185,7 @@ body {
 #monument-image {
   width: 100%;
   max-height: 360px;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: var(--radius);
   background: var(--color-surface-alt);
 }
@@ -302,6 +302,26 @@ body {
   .leaderboard-mascot img {
     max-height: 200px;
   }
+}
+
+#timer-label {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.05em;
+  transition: color 0.3s;
+}
+
+#timer-label.timer-warning {
+  color: #fbbf24;
+  animation: timer-pulse 1s ease-in-out infinite;
+}
+
+#timer-label.timer-expired {
+  color: #f87171;
+}
+
+@keyframes timer-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
 }
 
 .toast {

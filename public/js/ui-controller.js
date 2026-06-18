@@ -14,6 +14,7 @@ const roundCountSelect = document.getElementById('round-count');
 const startError = document.getElementById('start-error');
 
 const progressLabel = document.getElementById('progress-label');
+const timerLabel = document.getElementById('timer-label');
 const scoreLabel = document.getElementById('score-label');
 const monumentImage = document.getElementById('monument-image');
 const lockButton = document.getElementById('lock-guess');
@@ -87,6 +88,14 @@ export function renderQuestion(monument, index, total, score) {
     monumentImage.src = PLACEHOLDER_IMAGE;
   };
   setLockEnabled(false);
+}
+
+export function setTimerDisplay(seconds) {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  timerLabel.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+  timerLabel.classList.toggle('timer-warning', seconds > 0 && seconds <= 10);
+  timerLabel.classList.toggle('timer-expired', seconds <= 0);
 }
 
 export function setLockEnabled(enabled) {

@@ -3,11 +3,15 @@ import { GuessMapController, ResultMapController } from './map-controller.js';
 import { fetchLeaderboard } from './data-store.js';
 import * as ui from './ui-controller.js';
 
+const TIME_LIMIT_SECONDS = 60;
+
 const game = new GameController();
 let guessMap = null;
 let resultMap = null;
 let pendingGuess = null;
 let previousScreen = 'start';
+let countdownTimer = null;
+let remainingSeconds = 0;
 
 ui.onStartSubmit(handleStart);
 ui.onLockGuess(handleLockGuess);
@@ -52,6 +56,36 @@ async function handleStart() {
   }
 }
 
+function startTimer() {
+  clearTimer();
+  remainingSeconds = TIME_LIMIT_SECONDS;
+  ui.setTimerDisplay(remainingSeconds);
+  countdownTimer = setInterval(() => {
+    remainingSeconds -= 1;
+    ui.setTimerDisplay(remainingSeconds);
+    if (remainingSeconds <= 0) {
+      clearTimer();
+      handleTimerExpired();
+    }
+  }, 1000);
+}
+
+function clearTimer() {
+  clearInterval(countdownTimer);
+  countdownTimer = null;
+}
+
+async function handleTimerExpired() {
+  ui.setLockEnabled(false);
+  const guess = pendingGuess ?? { lat: 0, lng: 0 };
+  try {
+    const result = await game.submitCurrentGuess(guess.lat, guess.lng);
+    showRoundResult(result);
+  } catch (err) {
+    ui.showToast(err.message || 'Impossible de soumettre ta réponse.');
+  }
+}
+
 function startQuestionRound() {
   ui.showScreen('question');
   pendingGuess = null;
@@ -68,6 +102,7 @@ function startQuestionRound() {
   guessMap.invalidateSize();
 
   ui.renderQuestion(game.currentMonument, game.currentIndex, game.roundCount, game.totalScore);
+  startTimer();
 }
 
 async function handleLockGuess() {
@@ -88,6 +123,7 @@ async function handleLockGuess() {
 }
 
 function showRoundResult(result) {
+  clearTimer();
   ui.showScreen('result');
 
   if (!resultMap) {
