@@ -1,0 +1,110 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write   # create releases + upload assets
+  packages: write   # push to GHCR
+
+jobs:
+  # ──────────────────────────────────────────────
+  # Multi-arch Docker image → ghcr.io
+  # ──────────────────────────────────────────────
+  docker:
+    name: Docker (multi-arch)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract image metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: backend/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # ──────────────────────────────────────────────
+  # Standalone binaries via PyInstaller
+  # ──────────────────────────────────────────────
+  binary:
+    name: Binary — ${{ matrix.artifact }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact: guessthemonument-linux-x86_64
+            ext: ''
+          - os: macos-latest        # Apple Silicon (arm64)
+            artifact: guessthemonument-macos-arm64
+            ext: ''
+          - os: macos-13            # Intel (x86_64)
+            artifact: guessthemonument-macos-x86_64
+            ext: ''
+          - os: windows-latest
+            artifact: guessthemonument-windows-x86_64
+            ext: '.exe'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install -r backend/requirements.txt
+          pip install pyinstaller
+
+      - name: Build binary
+        run: pyinstaller guessthemonument.spec
+
+      # Rename to include platform in the filename
+      - name: Rename artifact (Unix)
+        if: runner.os != 'Windows'
+        run: mv dist/guessthemonument dist/${{ matrix.artifact }}
+
+      - name: Rename artifact (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: Move-Item dist\guessthemonument.exe dist\${{ matrix.artifact }}.exe
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/${{ matrix.artifact }}${{ matrix.ext }}
