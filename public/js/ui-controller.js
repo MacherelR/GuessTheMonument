@@ -4,7 +4,8 @@ const screens = {
   start: document.getElementById('screen-start'),
   question: document.getElementById('screen-question'),
   result: document.getElementById('screen-result'),
-  final: document.getElementById('screen-final')
+  final: document.getElementById('screen-final'),
+  leaderboard: document.getElementById('screen-leaderboard')
 };
 
 const startForm = document.getElementById('start-form');
@@ -13,16 +14,15 @@ const roundCountSelect = document.getElementById('round-count');
 const startError = document.getElementById('start-error');
 
 const progressLabel = document.getElementById('progress-label');
+const timerLabel = document.getElementById('timer-label');
 const scoreLabel = document.getElementById('score-label');
-const monumentName = document.getElementById('monument-name');
-const monumentCountry = document.getElementById('monument-country');
 const monumentImage = document.getElementById('monument-image');
-const imageAttribution = document.getElementById('image-attribution');
 const lockButton = document.getElementById('lock-guess');
 
 const resultProgressLabel = document.getElementById('result-progress-label');
 const resultScoreLabel = document.getElementById('result-score-label');
 const resultMonumentName = document.getElementById('result-monument-name');
+const resultMonumentCountry = document.getElementById('result-monument-country');
 const resultDistance = document.getElementById('result-distance');
 const resultPoints = document.getElementById('result-points');
 const nextRoundButton = document.getElementById('next-round');
@@ -32,11 +32,9 @@ const finalBreakdownBody = document.querySelector('#final-breakdown tbody');
 const playAgainButton = document.getElementById('play-again');
 const viewLeaderboardButton = document.getElementById('view-leaderboard');
 
-const leaderboardPanel = document.getElementById('leaderboard-panel');
-const leaderboardBackdrop = document.getElementById('leaderboard-backdrop');
-const leaderboardRows = document.getElementById('leaderboard-rows');
 const leaderboardToggle = document.getElementById('leaderboard-toggle');
-const leaderboardClose = document.getElementById('leaderboard-close');
+const leaderboardBack = document.getElementById('leaderboard-back');
+const leaderboardRows = document.getElementById('leaderboard-rows');
 
 const toast = document.getElementById('toast');
 
@@ -81,18 +79,23 @@ export function onStartSubmit(handler) {
 }
 
 export function renderQuestion(monument, index, total, score) {
-  progressLabel.textContent = `Round ${index + 1} / ${total}`;
-  scoreLabel.textContent = `Score: ${score}`;
-  monumentName.textContent = monument.name;
-  monumentCountry.textContent = monument.country;
+  progressLabel.textContent = `Manche ${index + 1} / ${total}`;
+  scoreLabel.textContent = `Score : ${score}`;
   monumentImage.src = monument.imageUrl;
-  monumentImage.alt = monument.name;
+  monumentImage.alt = '?';
   monumentImage.onerror = () => {
     monumentImage.onerror = null;
     monumentImage.src = PLACEHOLDER_IMAGE;
   };
-  imageAttribution.textContent = monument.imageAttribution || '';
   setLockEnabled(false);
+}
+
+export function setTimerDisplay(seconds) {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  timerLabel.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+  timerLabel.classList.toggle('timer-warning', seconds > 0 && seconds <= 10);
+  timerLabel.classList.toggle('timer-expired', seconds <= 0);
 }
 
 export function setLockEnabled(enabled) {
@@ -108,18 +111,19 @@ export function onNextRound(handler) {
 }
 
 export function renderResult(monument, index, total, score, distanceKm, points) {
-  resultProgressLabel.textContent = `Round ${index + 1} / ${total}`;
-  resultScoreLabel.textContent = `Score: ${score}`;
+  resultProgressLabel.textContent = `Manche ${index + 1} / ${total}`;
+  resultScoreLabel.textContent = `Score : ${score}`;
   resultMonumentName.textContent = monument.name;
+  resultMonumentCountry.textContent = monument.country;
   resultDistance.textContent = formatDistance(distanceKm);
   resultPoints.textContent = `+${points}`;
 
   const isLastRound = index + 1 >= total;
-  nextRoundButton.textContent = isLastRound ? 'See Final Score' : 'Next Monument';
+  nextRoundButton.textContent = isLastRound ? 'Voir le score final' : 'Monument suivant';
 }
 
 export function renderFinal(playerName, totalScore, breakdown) {
-  finalSummary.textContent = `${playerName}, your total score is ${totalScore}.`;
+  finalSummary.textContent = `${playerName}, ton score total est ${totalScore} points.`;
   finalBreakdownBody.innerHTML = '';
   breakdown.forEach((round, i) => {
     const tr = document.createElement('tr');
@@ -141,17 +145,26 @@ export function onViewLeaderboard(handler) {
   viewLeaderboardButton.addEventListener('click', handler);
 }
 
+export function onLeaderboardOpen(handler) {
+  leaderboardToggle.addEventListener('click', handler);
+}
+
+export function onLeaderboardBack(handler) {
+  leaderboardBack.addEventListener('click', handler);
+}
+
 export function renderLeaderboard(rows) {
   leaderboardRows.innerHTML = '';
   if (rows.length === 0) {
     const tr = document.createElement('tr');
-    tr.innerHTML = '<td colspan="4">No scores yet. Be the first!</td>';
+    tr.innerHTML = '<td colspan="5">Aucun score pour l\'instant. Soyez le premier&nbsp;!</td>';
     leaderboardRows.appendChild(tr);
     return;
   }
-  rows.forEach((row) => {
+  rows.forEach((row, i) => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
+      <td>${i + 1}</td>
       <td>${escapeHtml(row.playerName)}</td>
       <td>${row.bestScore}</td>
       <td>${row.gamesPlayed}</td>
@@ -159,25 +172,6 @@ export function renderLeaderboard(rows) {
     `;
     leaderboardRows.appendChild(tr);
   });
-}
-
-export function openLeaderboard() {
-  leaderboardPanel.classList.remove('hidden');
-  leaderboardBackdrop.classList.remove('hidden');
-}
-
-export function closeLeaderboard() {
-  leaderboardPanel.classList.add('hidden');
-  leaderboardBackdrop.classList.add('hidden');
-}
-
-export function onLeaderboardOpen(handler) {
-  leaderboardToggle.addEventListener('click', handler);
-}
-
-export function onLeaderboardClose(handler) {
-  leaderboardClose.addEventListener('click', handler);
-  leaderboardBackdrop.addEventListener('click', handler);
 }
 
 export function resetStartForm() {

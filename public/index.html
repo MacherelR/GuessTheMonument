@@ -1,62 +1,70 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Guess The Monument</title>
+  <title>Devine le Monument</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
   <header class="app-header">
-    <h1>Guess The Monument</h1>
-    <button id="leaderboard-toggle" class="ghost-button" type="button">Leaderboard</button>
+    <h1>Devine le Monument</h1>
+    <button id="leaderboard-toggle" class="ghost-button" type="button">Classement</button>
   </header>
 
   <main id="app">
-    <!-- Start screen -->
+    <!-- Écran d'accueil -->
     <section id="screen-start" class="screen">
       <div class="card">
-        <h2>Welcome!</h2>
+        <h2>Bienvenue&nbsp;!</h2>
         <p>
-          You'll see 5 famous monuments, one at a time. For each one, drop a pin on the
-          world map where you think it's located. The closer your guess, the more points
-          you score.
+          Tu vas découvrir des monuments célèbres un par un. Pour chacun, place une épingle
+          sur la carte à l'endroit où tu penses qu'il se trouve. Plus tu es précis,
+          plus tu marques de points.
         </p>
         <form id="start-form">
-          <label for="player-name">Your name</label>
+          <label for="player-name">Ton prénom</label>
           <input id="player-name" name="player-name" type="text" maxlength="40" autocomplete="name" required />
           <div id="start-error" class="error-text" role="alert" aria-live="polite"></div>
 
-          <label for="round-count">Number of monuments</label>
+          <label for="round-count">Nombre de monuments</label>
           <select id="round-count" name="round-count">
             <option value="5">5</option>
             <option value="6">6</option>
-            <option value="7" selected>7 (recommended)</option>
+            <option value="7">7</option>
             <option value="8">8</option>
             <option value="9">9</option>
             <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+            <option value="13">13</option>
+            <option value="14">14</option>
+            <option value="15" selected>15 (recommandé)</option>
+            <option value="16">16</option>
+            <option value="17">17</option>
+            <option value="18">18</option>
+            <option value="19">19</option>
+            <option value="20">20</option>
           </select>
 
-          <button type="submit" class="primary-button">Start Game</button>
+          <button type="submit" class="primary-button">Lancer la partie</button>
         </form>
       </div>
     </section>
 
-    <!-- Question screen -->
+    <!-- Écran de question -->
     <section id="screen-question" class="screen hidden">
       <div class="hud">
-        <span id="progress-label">Round 1 / 7</span>
-        <span id="score-label">Score: 0</span>
+        <span id="progress-label">Manche 1 / 7</span>
+        <span id="timer-label">1:00</span>
+        <span id="score-label">Score&nbsp;: 0</span>
       </div>
       <div class="question-layout">
         <div class="monument-panel">
-          <h2 id="monument-name">Monument name</h2>
-          <p id="monument-country" class="muted"></p>
-          <img id="monument-image" src="" alt="" />
-          <p id="image-attribution" class="attribution"></p>
-          <p class="hint">Click the map to place your guess. Drag the pin to adjust it.</p>
-          <button id="lock-guess" class="primary-button" type="button" disabled>Lock In Guess</button>
+          <img id="monument-image" src="" alt="" class="question-image" />
+          <p class="hint">Clique sur la carte pour placer ton épingle. Fais-la glisser pour l'ajuster.</p>
+          <button id="lock-guess" class="primary-button" type="button" disabled>Valider ma réponse</button>
         </div>
         <div class="map-panel">
           <div id="map"></div>
@@ -64,20 +72,21 @@
       </div>
     </section>
 
-    <!-- Round result screen -->
+    <!-- Écran de résultat -->
     <section id="screen-result" class="screen hidden">
       <div class="hud">
-        <span id="result-progress-label">Round 1 / 7</span>
-        <span id="result-score-label">Score: 0</span>
+        <span id="result-progress-label">Manche 1 / 7</span>
+        <span id="result-score-label">Score&nbsp;: 0</span>
       </div>
       <div class="question-layout">
         <div class="monument-panel">
-          <h2 id="result-monument-name">Monument name</h2>
+          <h2 id="result-monument-name">Nom du monument</h2>
+          <p id="result-monument-country" class="muted"></p>
           <div class="result-stats">
-            <p>Distance: <strong id="result-distance">-</strong></p>
-            <p>Points earned: <strong id="result-points">-</strong></p>
+            <p>Distance&nbsp;: <strong id="result-distance">-</strong></p>
+            <p>Points gagnés&nbsp;: <strong id="result-points">-</strong></p>
           </div>
-          <button id="next-round" class="primary-button" type="button">Next Monument</button>
+          <button id="next-round" class="primary-button" type="button">Monument suivant</button>
         </div>
         <div class="map-panel">
           <div id="result-map"></div>
@@ -85,10 +94,10 @@
       </div>
     </section>
 
-    <!-- Final score screen -->
+    <!-- Écran de score final -->
     <section id="screen-final" class="screen hidden">
       <div class="card">
-        <h2>Game complete!</h2>
+        <h2>Partie terminée&nbsp;!</h2>
         <p id="final-summary"></p>
         <table id="final-breakdown" class="breakdown-table">
           <thead>
@@ -102,34 +111,37 @@
           <tbody></tbody>
         </table>
         <div class="button-row">
-          <button id="play-again" class="primary-button" type="button">Play Again</button>
-          <button id="view-leaderboard" class="secondary-button" type="button">View Leaderboard</button>
+          <button id="play-again" class="primary-button" type="button">Rejouer</button>
+          <button id="view-leaderboard" class="secondary-button" type="button">Voir le classement</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Écran classement -->
+    <section id="screen-leaderboard" class="screen hidden">
+      <div class="leaderboard-page">
+        <div class="leaderboard-mascot">
+          <img src="/images/pedzo_sac.png" alt="Pedzo le randonneur" />
+        </div>
+        <div class="leaderboard-content">
+          <h2>Classement</h2>
+          <table class="breakdown-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Joueur</th>
+                <th>Meilleur</th>
+                <th>Parties</th>
+                <th>Moy.</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboard-rows"></tbody>
+          </table>
+          <button id="leaderboard-back" class="secondary-button" type="button">← Retour</button>
         </div>
       </div>
     </section>
   </main>
-
-  <!-- Leaderboard panel -->
-  <aside id="leaderboard-panel" class="leaderboard-panel hidden">
-    <div class="leaderboard-header">
-      <h2>Leaderboard</h2>
-      <button id="leaderboard-close" class="ghost-button" type="button" aria-label="Close leaderboard">x</button>
-    </div>
-    <div id="leaderboard-content">
-      <table class="breakdown-table">
-        <thead>
-          <tr>
-            <th>Player</th>
-            <th>Best</th>
-            <th>Games</th>
-            <th>Avg</th>
-          </tr>
-        </thead>
-        <tbody id="leaderboard-rows"></tbody>
-      </table>
-    </div>
-  </aside>
-  <div id="leaderboard-backdrop" class="leaderboard-backdrop hidden"></div>
 
   <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
 

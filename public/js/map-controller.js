@@ -1,20 +1,19 @@
 const WORLD_BOUNDS = L.latLngBounds(L.latLng(-85, -180), L.latLng(85, 180));
 
+// Pedzo mascot used as the player's guess pin.
 const GUESS_ICON = L.icon({
+  iconUrl: '/images/pedzo_sac.png',
+  iconSize: [48, 64],
+  iconAnchor: [24, 64]
+});
+
+// Standard Leaflet marker for the revealed actual location.
+const ACTUAL_ICON = L.icon({
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
   iconSize: [25, 41],
   iconAnchor: [12, 41]
-});
-
-const ACTUAL_ICON = L.icon({
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  className: 'actual-marker'
 });
 
 // Controls the question-screen map: click-to-place and drag-to-adjust guess marker.
@@ -26,8 +25,8 @@ export class GuessMapController {
       minZoom: 2
     }).setView([20, 0], 2);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors',
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://carto.com/">CARTO</a> | &copy; OpenStreetMap contributors',
       noWrap: false
     }).addTo(this.map);
 
@@ -83,8 +82,8 @@ export class ResultMapController {
       minZoom: 2
     }).setView([20, 0], 2);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors',
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; <a href="https://carto.com/">CARTO</a> | &copy; OpenStreetMap contributors',
       noWrap: false
     }).addTo(this.map);
 
@@ -98,11 +97,11 @@ export class ResultMapController {
     const guessLatLng = L.latLng(guess.lat, guess.lng);
     const actualLatLng = L.latLng(actual.lat, actual.lng);
 
-    const guessMarker = L.marker(guessLatLng, { icon: GUESS_ICON }).bindTooltip('Your guess', {
+    const guessMarker = L.marker(guessLatLng, { icon: GUESS_ICON }).bindTooltip('Ta position', {
       permanent: true,
       direction: 'top'
     });
-    const actualMarker = L.marker(actualLatLng, { icon: ACTUAL_ICON }).bindTooltip('Actual location', {
+    const actualMarker = L.marker(actualLatLng, { icon: ACTUAL_ICON }).bindTooltip('Position réelle', {
       permanent: true,
       direction: 'bottom'
     });
