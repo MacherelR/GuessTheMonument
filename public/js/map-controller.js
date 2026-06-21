@@ -25,8 +25,8 @@ export class GuessMapController {
       minZoom: 2
     }).setView([20, 0], 2);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors',
+    L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.fr/">OpenStreetMap France</a> | &copy; OpenStreetMap contributors',
       noWrap: false
     }).addTo(this.map);
 
@@ -82,8 +82,8 @@ export class ResultMapController {
       minZoom: 2
     }).setView([20, 0], 2);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors',
+    L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.fr/">OpenStreetMap France</a> | &copy; OpenStreetMap contributors',
       noWrap: false
     }).addTo(this.map);
 
