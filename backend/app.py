@@ -16,9 +16,9 @@ else:
 PUBLIC_DIR = os.path.join(_BASE, "public")
 IMAGES_DIR = os.path.join(_BASE, "images")
 
-MIN_ROUNDS = 5
+MIN_ROUNDS = 2
 MAX_ROUNDS = 20
-DEFAULT_ROUNDS = 15
+DEFAULT_ROUNDS = 5
 
 app = Flask(__name__, static_folder=PUBLIC_DIR, static_url_path="")
 

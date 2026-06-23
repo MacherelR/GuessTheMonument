@@ -36,7 +36,6 @@ $(DIST):
 native: | $(DIST)
 	pip install -q pyinstaller flask
 	$(PYINST) $(DATA_NAT) --name $(NATIVE_NAME) $(ENTRY)
-	cp dist/$(NATIVE_NAME)* $(DIST)/
 
 # ── Linux — Docker ────────────────────────────────────────────────────────────
 # Builds inside a Debian-slim container for a portable glibc-linked binary.
@@ -45,7 +44,6 @@ linux: | $(DIST)
 	docker run --rm -v "$(CURDIR):/src" -w /src python:3.12-slim sh -c \
 	  'pip install -q pyinstaller flask && \
 	   $(PYINST) $(DATA_U) --name $(APP)-linux $(ENTRY)'
-	cp dist/$(APP)-linux $(DIST)/$(APP)-linux
 
 # ── macOS — native only ───────────────────────────────────────────────────────
 # Apple forbids running macOS in Docker; must run on a Mac.
@@ -54,7 +52,6 @@ linux: | $(DIST)
 mac: | $(DIST)
 	pip install -q pyinstaller flask
 	$(PYINST) $(DATA_U) --name $(APP)-mac $(ENTRY)
-	cp dist/$(APP)-mac $(DIST)/$(APP)-mac
 
 # ── Windows — Docker + Wine ───────────────────────────────────────────────────
 # Cross-compiles via Wine inside Docker (cdrx/pyinstaller-windows).
@@ -67,7 +64,6 @@ windows: | $(DIST)
 	  -c 'wine pip install -q flask && \
 	      wine pyinstaller --onefile --clean $(DATA_W) \
 	        --name $(APP)-win $(ENTRY)'
-	cp dist/$(APP)-win.exe $(DIST)/$(APP)-win.exe
 
 # ── Cleanup ───────────────────────────────────────────────────────────────────
 clean:

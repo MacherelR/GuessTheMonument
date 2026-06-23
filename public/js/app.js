@@ -3,7 +3,7 @@ import { GuessMapController, ResultMapController } from './map-controller.js';
 import { fetchLeaderboard } from './data-store.js';
 import * as ui from './ui-controller.js';
 
-const TIME_LIMIT_SECONDS = 60;
+const TIME_LIMIT_SECONDS = 30;
 
 const game = new GameController();
 let guessMap = null;

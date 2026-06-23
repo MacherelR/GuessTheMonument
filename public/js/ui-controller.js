@@ -176,7 +176,7 @@ export function renderLeaderboard(rows) {
 
 export function resetStartForm() {
   startForm.reset();
-  roundCountSelect.value = '7';
+  roundCountSelect.value = '5';
   setStartError('');
 }
 
