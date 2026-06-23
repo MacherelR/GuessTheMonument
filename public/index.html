@@ -24,8 +24,19 @@
           plus tu marques de points.
         </p>
         <form id="start-form">
-          <label for="player-name">Ton prénom</label>
-          <input id="player-name" name="player-name" type="text" maxlength="40" autocomplete="name" required />
+          <div id="player-list-section">
+            <label>Joueurs <span class="muted">(optionnel)</span></label>
+            <div class="player-add-row">
+              <input id="player-add-input" type="text" maxlength="40" placeholder="Ajouter un joueur…" />
+              <button type="button" id="player-add-btn" class="secondary-button">+</button>
+            </div>
+            <ul id="player-list" class="player-list"></ul>
+          </div>
+
+          <div id="single-player-section">
+            <label for="player-name">Ton prénom</label>
+            <input id="player-name" name="player-name" type="text" maxlength="40" autocomplete="name" required />
+          </div>
           <div id="start-error" class="error-text" role="alert" aria-live="polite"></div>
 
           <label for="round-count">Nombre de monuments</label>
@@ -116,6 +127,27 @@
         <div class="button-row">
           <button id="play-again" class="primary-button" type="button">Rejouer</button>
           <button id="view-leaderboard" class="secondary-button" type="button">Voir le classement</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Écran récapitulatif multi-joueurs -->
+    <section id="screen-multi-summary" class="screen hidden">
+      <div class="card">
+        <h2>Récapitulatif</h2>
+        <table id="multi-summary-table" class="breakdown-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Joueur</th>
+              <th>Score</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+        <div class="button-row">
+          <button id="multi-play-again" class="primary-button" type="button">Rejouer</button>
+          <button id="multi-view-leaderboard" class="secondary-button" type="button">Voir le classement</button>
         </div>
       </div>
     </section>

@@ -145,6 +145,82 @@ body {
   font-size: 0.9rem;
 }
 
+.player-add-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.player-add-row input {
+  flex: 1;
+  padding: 0.6rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-surface-alt);
+  background: #fff;
+  color: var(--color-text);
+  font-size: 1rem;
+}
+
+.player-add-row input:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.player-add-row .secondary-button {
+  padding: 0.5rem 0.9rem;
+  margin-top: 0;
+  font-size: 1.1rem;
+}
+
+.player-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0 0;
+}
+
+.player-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.35rem 0.6rem;
+  background: var(--color-surface-alt);
+  border-radius: var(--radius);
+  margin-bottom: 0.3rem;
+  font-size: 0.95rem;
+}
+
+.player-list li .player-order {
+  color: var(--color-muted);
+  margin-right: 0.5rem;
+  font-size: 0.85rem;
+}
+
+.player-list li button {
+  background: none;
+  border: none;
+  color: var(--color-error);
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 0 0.3rem;
+  line-height: 1;
+}
+
+.player-list li button:hover {
+  color: var(--color-primary-dark);
+}
+
+#single-player-section.hidden {
+  display: none;
+}
+
+#player-list-section {
+  margin-bottom: 0.25rem;
+}
+
+#player-list-section label {
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
 .hud {
   display: flex;
   justify-content: space-between;

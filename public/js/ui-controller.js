@@ -5,6 +5,7 @@ const screens = {
   question: document.getElementById('screen-question'),
   result: document.getElementById('screen-result'),
   final: document.getElementById('screen-final'),
+  'multi-summary': document.getElementById('screen-multi-summary'),
   leaderboard: document.getElementById('screen-leaderboard')
 };
 
@@ -35,6 +36,15 @@ const viewLeaderboardButton = document.getElementById('view-leaderboard');
 const leaderboardToggle = document.getElementById('leaderboard-toggle');
 const leaderboardBack = document.getElementById('leaderboard-back');
 const leaderboardRows = document.getElementById('leaderboard-rows');
+
+const playerAddInput = document.getElementById('player-add-input');
+const playerAddBtn = document.getElementById('player-add-btn');
+const playerListEl = document.getElementById('player-list');
+const singlePlayerSection = document.getElementById('single-player-section');
+
+const multiSummaryBody = document.querySelector('#multi-summary-table tbody');
+const multiPlayAgainBtn = document.getElementById('multi-play-again');
+const multiViewLeaderboardBtn = document.getElementById('multi-view-leaderboard');
 
 const toast = document.getElementById('toast');
 
@@ -78,8 +88,9 @@ export function onStartSubmit(handler) {
   });
 }
 
-export function renderQuestion(monument, index, total, score) {
-  progressLabel.textContent = `Manche ${index + 1} / ${total}`;
+export function renderQuestion(monument, index, total, score, playerName) {
+  const prefix = playerName ? `${playerName} — ` : '';
+  progressLabel.textContent = `${prefix}Manche ${index + 1} / ${total}`;
   scoreLabel.textContent = `Score : ${score}`;
   monumentImage.src = monument.imageUrl;
   monumentImage.alt = '?';
@@ -110,8 +121,9 @@ export function onNextRound(handler) {
   nextRoundButton.addEventListener('click', handler);
 }
 
-export function renderResult(monument, index, total, score, distanceKm, points) {
-  resultProgressLabel.textContent = `Manche ${index + 1} / ${total}`;
+export function renderResult(monument, index, total, score, distanceKm, points, playerName) {
+  const prefix = playerName ? `${playerName} — ` : '';
+  resultProgressLabel.textContent = `${prefix}Manche ${index + 1} / ${total}`;
   resultScoreLabel.textContent = `Score : ${score}`;
   resultMonumentName.textContent = monument.name;
   resultMonumentCountry.textContent = monument.country;
@@ -178,6 +190,78 @@ export function resetStartForm() {
   startForm.reset();
   roundCountSelect.value = '5';
   setStartError('');
+}
+
+export function onPlayerAdd(handler) {
+  playerAddBtn.addEventListener('click', () => {
+    const name = playerAddInput.value.trim();
+    if (name) {
+      handler(name);
+      playerAddInput.value = '';
+    }
+  });
+  playerAddInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const name = playerAddInput.value.trim();
+      if (name) {
+        handler(name);
+        playerAddInput.value = '';
+      }
+    }
+  });
+}
+
+export function renderPlayerList(players, onRemove) {
+  playerListEl.innerHTML = '';
+  players.forEach((name, i) => {
+    const li = document.createElement('li');
+    li.innerHTML = `<span><span class="player-order">${i + 1}.</span> ${escapeHtml(name)}</span>`;
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = '×';
+    btn.addEventListener('click', () => onRemove(i));
+    li.appendChild(btn);
+    playerListEl.appendChild(li);
+  });
+
+  const hasPlayers = players.length > 0;
+  singlePlayerSection.classList.toggle('hidden', hasPlayers);
+  playerNameInput.required = !hasPlayers;
+}
+
+export function setFinalForMultiPlayer(nextPlayerName) {
+  if (nextPlayerName) {
+    playAgainButton.textContent = `Au tour de ${nextPlayerName} →`;
+  } else {
+    playAgainButton.textContent = 'Voir le récapitulatif';
+  }
+}
+
+export function resetFinalButtons() {
+  playAgainButton.textContent = 'Rejouer';
+}
+
+export function renderMultiSummary(results) {
+  const sorted = [...results].sort((a, b) => b.totalScore - a.totalScore);
+  multiSummaryBody.innerHTML = '';
+  sorted.forEach((r, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${i + 1}</td>
+      <td>${escapeHtml(r.playerName)}</td>
+      <td>${r.totalScore}</td>
+    `;
+    multiSummaryBody.appendChild(tr);
+  });
+}
+
+export function onMultiPlayAgain(handler) {
+  multiPlayAgainBtn.addEventListener('click', handler);
+}
+
+export function onMultiViewLeaderboard(handler) {
+  multiViewLeaderboardBtn.addEventListener('click', handler);
 }
 
 function escapeHtml(str) {

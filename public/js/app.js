@@ -13,6 +13,11 @@ let previousScreen = 'start';
 let countdownTimer = null;
 let remainingSeconds = 0;
 
+let multiPlayerList = [];
+let multiPlayerIndex = 0;
+let multiPlayerResults = [];
+let multiPlayerRoundCount = 5;
+
 ui.onStartSubmit(handleStart);
 ui.onLockGuess(handleLockGuess);
 ui.onNextRound(handleNextRound);
@@ -20,11 +25,23 @@ ui.onPlayAgain(handlePlayAgain);
 ui.onViewLeaderboard(() => openLeaderboard('final'));
 ui.onLeaderboardOpen(() => openLeaderboard(currentScreen()));
 ui.onLeaderboardBack(() => ui.showScreen(previousScreen));
+ui.onMultiPlayAgain(handleMultiPlayAgain);
+ui.onMultiViewLeaderboard(() => openLeaderboard('multi-summary'));
+
+ui.onPlayerAdd((name) => {
+  multiPlayerList.push(name);
+  ui.renderPlayerList(multiPlayerList, handleRemovePlayer);
+});
 
 ui.showScreen('start');
 
+function handleRemovePlayer(index) {
+  multiPlayerList.splice(index, 1);
+  ui.renderPlayerList(multiPlayerList, handleRemovePlayer);
+}
+
 function currentScreen() {
-  const names = ['start', 'question', 'result', 'final', 'leaderboard'];
+  const names = ['start', 'question', 'result', 'final', 'multi-summary', 'leaderboard'];
   for (const name of names) {
     const el = document.getElementById(`screen-${name}`);
     if (el && !el.classList.contains('hidden')) return name;
@@ -38,21 +55,40 @@ function openLeaderboard(from) {
   loadLeaderboard();
 }
 
+function isMultiPlayer() {
+  return multiPlayerList.length > 0;
+}
+
+function currentPlayerName() {
+  return isMultiPlayer() ? multiPlayerList[multiPlayerIndex] : null;
+}
+
 async function handleStart() {
   const { playerName, roundCount } = ui.getStartFormValues();
 
-  if (!playerName || playerName.trim().length === 0) {
-    ui.setStartError('Saisis ton prénom pour commencer.');
-    return;
-  }
-
-  ui.setStartError('');
-
-  try {
-    await game.start(playerName, roundCount);
-    startQuestionRound();
-  } catch (err) {
-    ui.setStartError(err.message || 'Impossible de démarrer la partie. Réessaie.');
+  if (isMultiPlayer()) {
+    multiPlayerIndex = 0;
+    multiPlayerResults = [];
+    multiPlayerRoundCount = roundCount;
+    ui.setStartError('');
+    try {
+      await game.start(multiPlayerList[0], roundCount);
+      startQuestionRound();
+    } catch (err) {
+      ui.setStartError(err.message || 'Impossible de démarrer la partie. Réessaie.');
+    }
+  } else {
+    if (!playerName || playerName.trim().length === 0) {
+      ui.setStartError('Saisis ton prénom pour commencer.');
+      return;
+    }
+    ui.setStartError('');
+    try {
+      await game.start(playerName, roundCount);
+      startQuestionRound();
+    } catch (err) {
+      ui.setStartError(err.message || 'Impossible de démarrer la partie. Réessaie.');
+    }
   }
 }
 
@@ -101,7 +137,7 @@ function startQuestionRound() {
   };
   guessMap.invalidateSize();
 
-  ui.renderQuestion(game.currentMonument, game.currentIndex, game.roundCount, game.totalScore);
+  ui.renderQuestion(game.currentMonument, game.currentIndex, game.roundCount, game.totalScore, currentPlayerName());
   startTimer();
 }
 
@@ -141,7 +177,8 @@ function showRoundResult(result) {
     game.roundCount,
     game.totalScore,
     result.distanceKm,
-    result.score
+    result.score,
+    currentPlayerName()
   );
 }
 
@@ -150,6 +187,20 @@ async function handleNextRound() {
     try {
       const summary = await game.finish();
       ui.renderFinal(summary.playerName, summary.totalScore, summary.breakdown);
+
+      if (isMultiPlayer()) {
+        multiPlayerResults.push({
+          playerName: summary.playerName,
+          totalScore: summary.totalScore,
+          breakdown: summary.breakdown
+        });
+        const isLastPlayer = multiPlayerIndex >= multiPlayerList.length - 1;
+        const nextName = isLastPlayer ? null : multiPlayerList[multiPlayerIndex + 1];
+        ui.setFinalForMultiPlayer(nextName);
+      } else {
+        ui.resetFinalButtons();
+      }
+
       ui.showScreen('final');
     } catch (err) {
       ui.showToast(err.message || 'Impossible de sauvegarder ton score. Réessaie.');
@@ -162,7 +213,33 @@ async function handleNextRound() {
 }
 
 function handlePlayAgain() {
+  if (isMultiPlayer()) {
+    if (multiPlayerIndex < multiPlayerList.length - 1) {
+      multiPlayerIndex++;
+      startNextMultiPlayer();
+    } else {
+      ui.renderMultiSummary(multiPlayerResults);
+      ui.showScreen('multi-summary');
+    }
+  } else {
+    ui.resetStartForm();
+    ui.showScreen('start');
+  }
+}
+
+async function startNextMultiPlayer() {
+  const playerName = multiPlayerList[multiPlayerIndex];
+  try {
+    await game.start(playerName, multiPlayerRoundCount);
+    startQuestionRound();
+  } catch (err) {
+    ui.showToast(err.message || 'Impossible de démarrer la partie. Réessaie.');
+  }
+}
+
+function handleMultiPlayAgain() {
   ui.resetStartForm();
+  ui.renderPlayerList(multiPlayerList, handleRemovePlayer);
   ui.showScreen('start');
 }
 
