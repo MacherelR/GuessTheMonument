@@ -13,6 +13,7 @@ let previousScreen = 'start';
 let countdownTimer = null;
 let remainingSeconds = 0;
 
+let gameMode = 'multi';
 let multiPlayerList = [];
 let multiPlayerIndex = 0;
 let multiPlayerResults = [];
@@ -27,6 +28,12 @@ ui.onLeaderboardOpen(() => openLeaderboard(currentScreen()));
 ui.onLeaderboardBack(() => ui.showScreen(previousScreen));
 ui.onMultiPlayAgain(handleMultiPlayAgain);
 ui.onMultiViewLeaderboard(() => openLeaderboard('multi-summary'));
+
+ui.onSoloToggle(() => {
+  gameMode = gameMode === 'solo' ? 'multi' : 'solo';
+  ui.setMode(gameMode);
+  ui.setStartError('');
+});
 
 ui.onPlayerAdd((name) => {
   multiPlayerList.push(name);
@@ -56,7 +63,7 @@ function openLeaderboard(from) {
 }
 
 function isMultiPlayer() {
-  return multiPlayerList.length > 0;
+  return gameMode === 'multi' && multiPlayerList.length > 0;
 }
 
 function currentPlayerName() {
@@ -66,7 +73,11 @@ function currentPlayerName() {
 async function handleStart() {
   const { playerName, roundCount } = ui.getStartFormValues();
 
-  if (isMultiPlayer()) {
+  if (gameMode === 'multi') {
+    if (multiPlayerList.length === 0) {
+      ui.setStartError('Ajoute au moins un joueur pour commencer.');
+      return;
+    }
     multiPlayerIndex = 0;
     multiPlayerResults = [];
     multiPlayerRoundCount = roundCount;
@@ -239,6 +250,8 @@ async function startNextMultiPlayer() {
 
 function handleMultiPlayAgain() {
   ui.resetStartForm();
+  gameMode = 'multi';
+  ui.setMode('multi');
   ui.renderPlayerList(multiPlayerList, handleRemovePlayer);
   ui.showScreen('start');
 }

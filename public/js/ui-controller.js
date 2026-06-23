@@ -37,10 +37,12 @@ const leaderboardToggle = document.getElementById('leaderboard-toggle');
 const leaderboardBack = document.getElementById('leaderboard-back');
 const leaderboardRows = document.getElementById('leaderboard-rows');
 
+const soloToggle = document.getElementById('solo-toggle');
 const playerAddInput = document.getElementById('player-add-input');
 const playerAddBtn = document.getElementById('player-add-btn');
 const playerListEl = document.getElementById('player-list');
 const singlePlayerSection = document.getElementById('single-player-section');
+const playerListSection = document.getElementById('player-list-section');
 
 const multiSummaryBody = document.querySelector('#multi-summary-table tbody');
 const multiPlayAgainBtn = document.getElementById('multi-play-again');
@@ -212,22 +214,35 @@ export function onPlayerAdd(handler) {
   });
 }
 
+export function onSoloToggle(handler) {
+  soloToggle.addEventListener('click', handler);
+}
+
+export function setMode(mode) {
+  const solo = mode === 'solo';
+  soloToggle.classList.toggle('active', solo);
+  singlePlayerSection.classList.toggle('hidden', !solo);
+  playerListSection.classList.toggle('hidden', solo);
+  playerNameInput.required = solo;
+}
+
 export function renderPlayerList(players, onRemove) {
   playerListEl.innerHTML = '';
+  if (players.length === 0) {
+    playerListEl.innerHTML = '<tr class="player-empty-row"><td colspan="3">Aucun joueur ajouté</td></tr>';
+    return;
+  }
   players.forEach((name, i) => {
-    const li = document.createElement('li');
-    li.innerHTML = `<span><span class="player-order">${i + 1}.</span> ${escapeHtml(name)}</span>`;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${i + 1}</td><td>${escapeHtml(name)}</td><td></td>`;
     const btn = document.createElement('button');
     btn.type = 'button';
+    btn.className = 'player-remove-btn';
     btn.textContent = '×';
     btn.addEventListener('click', () => onRemove(i));
-    li.appendChild(btn);
-    playerListEl.appendChild(li);
+    tr.lastElementChild.appendChild(btn);
+    playerListEl.appendChild(tr);
   });
-
-  const hasPlayers = players.length > 0;
-  singlePlayerSection.classList.toggle('hidden', hasPlayers);
-  playerNameInput.required = !hasPlayers;
 }
 
 export function setFinalForMultiPlayer(nextPlayerName) {

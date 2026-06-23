@@ -32,6 +32,12 @@ body {
   color: #fff;
 }
 
+.header-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
 .app-header h1 {
   margin: 0;
   font-size: 1.4rem;
@@ -46,8 +52,8 @@ body {
   margin: 0 auto;
 }
 
-.screen.hidden {
-  display: none;
+.hidden {
+  display: none !important;
 }
 
 .card {
@@ -139,77 +145,15 @@ body {
   background: rgba(255, 255, 255, 0.15);
 }
 
+.ghost-button.active {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: #fff;
+}
+
 .error-text {
   color: var(--color-error);
   min-height: 1.2em;
   font-size: 0.9rem;
-}
-
-.player-add-row {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.player-add-row input {
-  flex: 1;
-  padding: 0.6rem;
-  border-radius: var(--radius);
-  border: 1px solid var(--color-surface-alt);
-  background: #fff;
-  color: var(--color-text);
-  font-size: 1rem;
-}
-
-.player-add-row input:focus {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 1px;
-}
-
-.player-add-row .secondary-button {
-  padding: 0.5rem 0.9rem;
-  margin-top: 0;
-  font-size: 1.1rem;
-}
-
-.player-list {
-  list-style: none;
-  padding: 0;
-  margin: 0.5rem 0 0 0;
-}
-
-.player-list li {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.35rem 0.6rem;
-  background: var(--color-surface-alt);
-  border-radius: var(--radius);
-  margin-bottom: 0.3rem;
-  font-size: 0.95rem;
-}
-
-.player-list li .player-order {
-  color: var(--color-muted);
-  margin-right: 0.5rem;
-  font-size: 0.85rem;
-}
-
-.player-list li button {
-  background: none;
-  border: none;
-  color: var(--color-error);
-  cursor: pointer;
-  font-size: 1.1rem;
-  padding: 0 0.3rem;
-  line-height: 1;
-}
-
-.player-list li button:hover {
-  color: var(--color-primary-dark);
-}
-
-#single-player-section.hidden {
-  display: none;
 }
 
 #player-list-section {
@@ -218,7 +162,79 @@ body {
 
 #player-list-section label {
   font-weight: 600;
+  display: block;
+  margin-bottom: 0.4rem;
+}
+
+.player-table {
+  margin-top: 0;
+}
+
+.player-table th:last-child,
+.player-table td:last-child {
+  width: 2.2rem;
+  text-align: center;
+}
+
+.player-remove-btn {
+  background: none;
+  border: none;
+  color: var(--color-error);
+  cursor: pointer;
+  font-size: 1.15rem;
+  line-height: 1;
+  padding: 0.1rem 0.3rem;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.player-remove-btn:hover {
+  background: rgba(185, 28, 28, 0.1);
+}
+
+.player-empty-row td {
+  color: var(--color-muted);
+  font-style: italic;
+  text-align: center !important;
+  padding: 0.6rem 0.5rem;
+}
+
+.player-add-row {
+  display: flex;
+  gap: 0.5rem;
   margin-top: 0.5rem;
+}
+
+.player-add-row input {
+  flex: 1;
+  padding: 0.5rem 0.6rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-surface-alt);
+  background: #fff;
+  color: var(--color-text);
+  font-size: 0.95rem;
+}
+
+.player-add-row input:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.player-add-btn {
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.5rem 0.9rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.player-add-btn:hover {
+  background: var(--color-primary-dark);
 }
 
 .hud {
@@ -413,9 +429,7 @@ body {
   font-size: 0.9rem;
 }
 
-.toast.hidden {
-  display: none;
-}
+
 
 @media (max-width: 800px) {
   .question-layout {

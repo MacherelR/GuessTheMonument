@@ -10,7 +10,10 @@
 <body>
   <header class="app-header">
     <h1>Devine le Monument</h1>
-    <button id="leaderboard-toggle" class="ghost-button" type="button">Classement</button>
+    <div class="header-actions">
+      <button id="solo-toggle" class="ghost-button" type="button">Mode solo</button>
+      <button id="leaderboard-toggle" class="ghost-button" type="button">Classement</button>
+    </div>
   </header>
 
   <main id="app">
@@ -24,19 +27,27 @@
           plus tu marques de points.
         </p>
         <form id="start-form">
-          <div id="player-list-section">
-            <label>Joueurs <span class="muted">(optionnel)</span></label>
-            <div class="player-add-row">
-              <input id="player-add-input" type="text" maxlength="40" placeholder="Ajouter un joueur…" />
-              <button type="button" id="player-add-btn" class="secondary-button">+</button>
-            </div>
-            <ul id="player-list" class="player-list"></ul>
+          <div id="single-player-section" class="hidden">
+            <label for="player-name">Ton prénom</label>
+            <input id="player-name" name="player-name" type="text" maxlength="40" autocomplete="name" />
           </div>
 
-          <div id="single-player-section">
-            <label for="player-name">Ton prénom</label>
-            <input id="player-name" name="player-name" type="text" maxlength="40" autocomplete="name" required />
+          <div id="player-list-section">
+            <label>Joueurs</label>
+            <table class="breakdown-table player-table">
+              <thead>
+                <tr><th>#</th><th>Joueur</th><th></th></tr>
+              </thead>
+              <tbody id="player-list">
+                <tr class="player-empty-row"><td colspan="3">Aucun joueur ajouté</td></tr>
+              </tbody>
+            </table>
+            <div class="player-add-row">
+              <input id="player-add-input" type="text" maxlength="40" placeholder="Nom du joueur…" />
+              <button type="button" id="player-add-btn" class="player-add-btn">Ajouter</button>
+            </div>
           </div>
+
           <div id="start-error" class="error-text" role="alert" aria-live="polite"></div>
 
           <label for="round-count">Nombre de monuments</label>
