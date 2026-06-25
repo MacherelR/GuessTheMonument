@@ -46,6 +46,7 @@
               <input id="player-add-input" type="text" maxlength="40" placeholder="Nom du joueur…" />
               <button type="button" id="player-add-btn" class="player-add-btn">Ajouter</button>
             </div>
+            <button type="button" id="player-clear-btn" class="player-clear-btn hidden">Tout supprimer</button>
           </div>
 
           <div id="start-error" class="error-text" role="alert" aria-live="polite"></div>
@@ -53,9 +54,9 @@
           <label for="round-count">Nombre de monuments</label>
           <select id="round-count" name="round-count">
             <option value="2">2</option>
-            <option value="3">3</option>
+            <option value="3" selected>3 (recommandé)</option>
             <option value="4">4</option>
-            <option value="5" selected>5 (recommandé)</option>
+            <option value="5">5</option>
             <option value="6">6</option>
             <option value="7">7</option>
             <option value="8">8</option>

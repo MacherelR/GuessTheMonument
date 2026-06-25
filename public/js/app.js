@@ -14,7 +14,7 @@ let countdownTimer = null;
 let remainingSeconds = 0;
 
 let gameMode = 'multi';
-let multiPlayerList = [];
+let multiPlayerList = loadPlayers();
 let multiPlayerIndex = 0;
 let multiPlayerResults = [];
 let multiPlayerRoundCount = 5;
@@ -38,14 +38,45 @@ ui.onSoloToggle(() => {
 
 ui.onPlayerAdd((name) => {
   multiPlayerList.push(name);
-  ui.renderPlayerList(multiPlayerList, handleRemovePlayer);
+  savePlayers();
+  refreshPlayerList();
+});
+
+ui.onPlayerClear(() => {
+  multiPlayerList = [];
+  savePlayers();
+  refreshPlayerList();
 });
 
 ui.showScreen('start');
+refreshPlayerList();
+
+function refreshPlayerList() {
+  ui.renderPlayerList(multiPlayerList, handleRemovePlayer, handleRenamePlayer);
+}
 
 function handleRemovePlayer(index) {
   multiPlayerList.splice(index, 1);
-  ui.renderPlayerList(multiPlayerList, handleRemovePlayer);
+  savePlayers();
+  refreshPlayerList();
+}
+
+function handleRenamePlayer(index, newName) {
+  multiPlayerList[index] = newName;
+  savePlayers();
+  refreshPlayerList();
+}
+
+function savePlayers() {
+  try { localStorage.setItem('gtm_players', JSON.stringify(multiPlayerList)); } catch (e) {}
+}
+
+function loadPlayers() {
+  try {
+    const stored = localStorage.getItem('gtm_players');
+    if (stored) return JSON.parse(stored);
+  } catch (e) {}
+  return [];
 }
 
 function currentScreen() {
@@ -253,7 +284,7 @@ function handleMultiPlayAgain() {
   ui.resetStartForm();
   gameMode = 'multi';
   ui.setMode('multi');
-  ui.renderPlayerList(multiPlayerList, handleRemovePlayer);
+  refreshPlayerList();
   ui.showScreen('start');
 }
 

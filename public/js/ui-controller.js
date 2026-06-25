@@ -41,6 +41,7 @@ const leaderboardRows = document.getElementById('leaderboard-rows');
 const soloToggle = document.getElementById('solo-toggle');
 const playerAddInput = document.getElementById('player-add-input');
 const playerAddBtn = document.getElementById('player-add-btn');
+const playerClearBtn = document.getElementById('player-clear-btn');
 const playerListEl = document.getElementById('player-list');
 const singlePlayerSection = document.getElementById('single-player-section');
 const playerListSection = document.getElementById('player-list-section');
@@ -195,7 +196,7 @@ export function renderLeaderboard(rows) {
 
 export function resetStartForm() {
   startForm.reset();
-  roundCountSelect.value = '5';
+  roundCountSelect.value = '3';
   setStartError('');
 }
 
@@ -231,23 +232,63 @@ export function setMode(mode) {
   playerNameInput.required = solo;
 }
 
-export function renderPlayerList(players, onRemove) {
+export function renderPlayerList(players, onRemove, onRename) {
   playerListEl.innerHTML = '';
+  playerClearBtn.classList.toggle('hidden', players.length === 0);
   if (players.length === 0) {
     playerListEl.innerHTML = '<tr class="player-empty-row"><td colspan="3">Aucun joueur ajouté</td></tr>';
     return;
   }
   players.forEach((name, i) => {
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${i + 1}</td><td>${escapeHtml(name)}</td><td></td>`;
+    const tdNum = document.createElement('td');
+    tdNum.textContent = i + 1;
+
+    const tdName = document.createElement('td');
+    tdName.textContent = name;
+    tdName.classList.add('player-name-cell');
+    tdName.title = 'Cliquer pour renommer';
+    tdName.addEventListener('click', () => {
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.maxLength = 40;
+      input.value = name;
+      input.className = 'player-edit-input';
+      tdName.textContent = '';
+      tdName.appendChild(input);
+      input.focus();
+      input.select();
+      const commit = () => {
+        const newName = input.value.trim();
+        if (newName && newName !== name) {
+          onRename(i, newName);
+        } else {
+          tdName.textContent = name;
+          tdName.title = 'Cliquer pour renommer';
+        }
+      };
+      input.addEventListener('blur', commit);
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+        if (e.key === 'Escape') { input.value = name; input.blur(); }
+      });
+    });
+
+    const tdAction = document.createElement('td');
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'player-remove-btn';
     btn.textContent = '×';
     btn.addEventListener('click', () => onRemove(i));
-    tr.lastElementChild.appendChild(btn);
+    tdAction.appendChild(btn);
+
+    tr.append(tdNum, tdName, tdAction);
     playerListEl.appendChild(tr);
   });
+}
+
+export function onPlayerClear(handler) {
+  playerClearBtn.addEventListener('click', handler);
 }
 
 export function setFinalForMultiPlayer(nextPlayerName) {
