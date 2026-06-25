@@ -331,4 +331,8 @@ def index():
 if __name__ == "__main__":
     init_db()
     port = int(os.environ.get("PORT", 3000))
+    if getattr(sys, "frozen", False):
+        import threading
+        import webbrowser
+        threading.Timer(1.2, lambda: webbrowser.open(f"http://localhost:{port}")).start()
     app.run(host="0.0.0.0", port=port)
