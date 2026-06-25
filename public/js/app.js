@@ -1,6 +1,6 @@
 import { GameController } from './game-controller.js';
 import { GuessMapController, ResultMapController } from './map-controller.js';
-import { fetchLeaderboard } from './data-store.js';
+import { fetchLeaderboard, resetLeaderboard } from './data-store.js';
 import * as ui from './ui-controller.js';
 
 const TIME_LIMIT_SECONDS = 30;
@@ -26,6 +26,7 @@ ui.onPlayAgain(handlePlayAgain);
 ui.onViewLeaderboard(() => openLeaderboard('final'));
 ui.onLeaderboardOpen(() => openLeaderboard(currentScreen()));
 ui.onLeaderboardBack(() => ui.showScreen(previousScreen));
+ui.onLeaderboardReset(handleResetLeaderboard);
 ui.onMultiPlayAgain(handleMultiPlayAgain);
 ui.onMultiViewLeaderboard(() => openLeaderboard('multi-summary'));
 
@@ -263,5 +264,16 @@ async function loadLeaderboard() {
   } catch (err) {
     ui.renderLeaderboard([]);
     ui.showToast('Impossible de charger le classement.');
+  }
+}
+
+async function handleResetLeaderboard() {
+  if (!confirm('Supprimer tous les scores ? Cette action est irréversible.')) return;
+  try {
+    await resetLeaderboard();
+    ui.renderLeaderboard([]);
+    ui.showToast('Classement réinitialisé.');
+  } catch (err) {
+    ui.showToast('Impossible de réinitialiser le classement.');
   }
 }

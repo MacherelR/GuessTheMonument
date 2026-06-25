@@ -47,3 +47,7 @@ export function completeSession(sessionId) {
 export function fetchLeaderboard() {
   return request('/api/leaderboard');
 }
+
+export function resetLeaderboard() {
+  return request('/api/leaderboard', { method: 'DELETE' });
+}

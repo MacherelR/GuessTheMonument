@@ -135,6 +135,15 @@ body {
   background: #cdbfae;
 }
 
+.danger-button {
+  color: var(--color-error);
+}
+
+.danger-button:hover {
+  background: var(--color-error);
+  color: #fff;
+}
+
 .ghost-button {
   background: transparent;
   color: #fff;
@@ -342,6 +351,7 @@ body {
   gap: 0.5rem;
   margin-top: 1rem;
   flex-wrap: wrap;
+  align-items: stretch;
 }
 
 .leaderboard-page {
@@ -382,9 +392,6 @@ body {
   font-size: 1.6rem;
 }
 
-#leaderboard-back {
-  margin-top: 1.25rem;
-}
 
 @media (max-width: 700px) {
   .leaderboard-page {

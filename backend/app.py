@@ -262,6 +262,19 @@ def leaderboard():
     )
 
 
+@app.route("/api/leaderboard", methods=["DELETE"])
+def reset_leaderboard():
+    conn = get_connection()
+    try:
+        conn.execute("DELETE FROM session_monuments")
+        conn.execute("DELETE FROM sessions")
+        conn.execute("DELETE FROM players")
+        conn.commit()
+    finally:
+        conn.close()
+    return jsonify({"ok": True})
+
+
 @app.route("/api/players/<name>/stats", methods=["GET"])
 def player_stats(name):
     conn = get_connection()

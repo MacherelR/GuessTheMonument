@@ -35,6 +35,7 @@ const viewLeaderboardButton = document.getElementById('view-leaderboard');
 
 const leaderboardToggle = document.getElementById('leaderboard-toggle');
 const leaderboardBack = document.getElementById('leaderboard-back');
+const leaderboardReset = document.getElementById('leaderboard-reset');
 const leaderboardRows = document.getElementById('leaderboard-rows');
 
 const soloToggle = document.getElementById('solo-toggle');
@@ -165,6 +166,10 @@ export function onLeaderboardOpen(handler) {
 
 export function onLeaderboardBack(handler) {
   leaderboardBack.addEventListener('click', handler);
+}
+
+export function onLeaderboardReset(handler) {
+  leaderboardReset.addEventListener('click', handler);
 }
 
 export function renderLeaderboard(rows) {
